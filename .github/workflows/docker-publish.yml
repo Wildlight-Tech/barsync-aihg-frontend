@@ -1,4 +1,4 @@
-name: Publish Docker Image
+name: Publish Docker Image to GHCR
 
 on:
   push:
@@ -6,21 +6,19 @@ on:
       - main
 
 jobs:
-  push_to_registry:
-    name: Push Docker image to Github Packages
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Log in to Github Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
 
-      - name: Build and push the image
-        run: |
-          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/my-app:latest
-          docker build -t $IMAGE_NAME .
-          docker push $IMAGE_NAME
-    
+      - name: Build Docker image
+        run: docker build -t ghcr.io/${{ github.repository_owner }}/barsync-aihg-frontend:latest .
+
+      - name: Push Docker image
+        run: docker push ghcr.io/${{ github.repository_owner }}/barsync-aihg-frontend:latest
     
